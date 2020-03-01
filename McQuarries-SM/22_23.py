@@ -9,33 +9,39 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
-from scipy.fftpack import fft, ifft
 
 rc('text', usetex=True)
 
 # Critical value of tau from problem statement
-tauC = 0.05
+tauC = 0.1
 
 # Choose sampling domain and number of samples
-tFinal     = 1.0
-nSamples   = 500
+tFinal     = 0.5
+nSamples   = 4096
 tau        = np.linspace(0.0, tFinal, num = nSamples)
 # Calculate sampled omegas (first half are positive frequencies, second half are
 # negative. This is because the DFT treats the signal as periodic.)
-omega      = (np.arange(nSamples)*((2*np.pi)/tFinal))[0:nSamples//2]
+omega      = np.linspace(0.0, (nSamples*np.pi)/tFinal, num = nSamples//2)
 # Correlation function
 expCorr    = np.exp(-tau/tauC)
 # Power spectrum of expCorr
-powerSpec  = fft(expCorr, n=nSamples)[0:nSamples//2]/nSamples
+powerSpec  = np.fft.fft(expCorr, n=nSamples)[0:nSamples//2]
+# 
+analyticalPSpec = (1./tauC) / ( 1./(tauC**2.) + omega**2.)
 
 fig, ax = plt.subplots(1, 2)
 
 ax[0].plot(tau, expCorr)
 ax[0].set_xlabel(r"$\tau$ [s]")
 ax[0].set_ylabel(r"$C(\tau)$")
-ax[1].plot(omega, np.abs(powerSpec))
+ax[1].plot(omega, tFinal/nSamples * powerSpec.real, color='xkcd:sky blue')
 ax[1].set_xlabel(r"$\omega$ [rad/s]")
-ax[1].set_ylabel(r"$|S(\omega)|/N$")
+ax[1].set_ylabel(r"$|S(\omega)|$")
+ax[1].plot(omega, analyticalPSpec, color='xkcd:rust red')
+ax[0].set_xlim([0., tFinal])
+# Inclusion of higher frequency terms (high nSamples/tFinal) improves agreement with analytical pspec,
+# but power spec at higher frequencies is boring
+ax[1].set_xlim([0.0, 250.])
 
 plt.tight_layout()
 plt.show()
@@ -49,7 +55,7 @@ plt.show()
 
 np.random.seed(2)
 expCorr   = np.random.ranf(size=nSamples)-0.5
-powerSpec = fft(expCorr, n=nSamples)[0:nSamples//2]/nSamples
+powerSpec = np.fft.fft(expCorr, n=nSamples)[0:nSamples//2]/nSamples
 
 fig, ax = plt.subplots(1, 2)
 

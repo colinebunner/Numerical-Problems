@@ -17,7 +17,7 @@ tauC = 0.1
 
 # Choose sampling domain and number of samples
 tFinal     = 0.5
-nSamples   = 4096
+nSamples   = 1024
 tau        = np.linspace(0.0, tFinal, num = nSamples)
 # Calculate sampled omegas (first half are positive frequencies, second half are
 # negative. This is because the DFT treats the signal as periodic.)
@@ -41,7 +41,7 @@ ax[1].plot(omega, analyticalPSpec, color='xkcd:rust red')
 ax[0].set_xlim([0., tFinal])
 # Inclusion of higher frequency terms (high nSamples/tFinal) improves agreement with analytical pspec,
 # but power spec at higher frequencies is boring
-ax[1].set_xlim([0.0, 250.])
+ax[1].set_xlim([0.0, 125.])
 
 plt.tight_layout()
 plt.show()
